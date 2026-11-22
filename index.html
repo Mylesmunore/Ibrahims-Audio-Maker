@@ -52,7 +52,7 @@ drop.addEventListener('drop',e=>choose(e.dataTransfer.files[0]));
 $('backend').value=localStorage.getItem('ibi_backend_url')||'';
 async function discoverBackend(){
  try{
-  const r=await fetch('./backend.json?ts='+Date.now(),{cache:'no-store'});
+  const r=await fetch('https://mylesmunore.github.io/Ibrahims-Audio-Maker/backend.json?ts='+Date.now(),{cache:'no-store'});
   if(!r.ok)throw Error('Backend registry unavailable');
   const d=await r.json();
   if(d.backend_url){
@@ -62,7 +62,7 @@ async function discoverBackend(){
   }else{
    $('connection').textContent='Waiting for Kaggle to publish its tunnel address automatically...';
   }
- }catch(e){$('connection').textContent='Waiting for automatic Kaggle connection...';}
+ }catch(e){$('connection').textContent='Could not read backend.json: '+e.message+' · Refresh the page.';}
 }
 discoverBackend();
 window.addEventListener('focus',discoverBackend);
