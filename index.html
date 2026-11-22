@@ -32,8 +32,8 @@ footer{border-top:1px solid #24211b;text-align:center;padding:25px;color:#777164
 <div class="option"><div><b>Inference steps</b><small>More steps can refine detail</small></div><select id="steps"><option>25</option><option selected>40</option><option>50</option><option>64</option><option>80</option></select></div>
 <div class="option"><div><b>Guidance scale</b><small>Prompt influence</small></div><select id="cfg"><option>3.0</option><option selected>4.5</option><option>5.0</option><option>6.0</option><option>7.0</option></select></div>
 <div class="option"><div><b>Output format</b><small>Video with generated audio</small></div><span class="gold" style="font-size:12px">MP4 + FLAC</span></div>
-<div class="notice"><strong>Private Kaggle connection</strong><br>Paste the current Cloudflare backend URL including its secret path. This address changes when you restart the Kaggle session.</div>
-<label for="backend">Kaggle backend URL</label><input id="backend" type="url" placeholder="https://xxxx.trycloudflare.com/your-secret-path/">
+<div class="notice"><strong>Private Kaggle connection</strong><br>The studio automatically discovers the latest Kaggle tunnel address. Keep your Kaggle session running while generating audio.</div>
+<label for="backend">Backend URL (automatic)</label><input id="backend" type="url" placeholder="https://xxxx.trycloudflare.com/your-secret-path/">
 <button class="btn" id="connect" type="button" style="margin-top:10px">CONNECT TO GPU</button><div class="hint" id="connection">Not connected</div>
 </div></section>
 </main><footer>IBRAHIM'S AUDIO MAKER <span class="gold">·</span> MADE ON EARTH BY IBI</footer>
@@ -50,6 +50,22 @@ drop.addEventListener('click',()=>file.click());file.addEventListener('change',(
 ['dragleave','drop'].forEach(e=>drop.addEventListener(e,x=>{x.preventDefault();drop.classList.remove('drag')}));
 drop.addEventListener('drop',e=>choose(e.dataTransfer.files[0]));
 $('backend').value=localStorage.getItem('ibi_backend_url')||'';
+async function discoverBackend(){
+ try{
+  const r=await fetch('./backend.json?ts='+Date.now(),{cache:'no-store'});
+  if(!r.ok)throw Error('Backend registry unavailable');
+  const d=await r.json();
+  if(d.backend_url){
+   $('backend').value=d.backend_url;
+   backend=cleanBase(d.backend_url);
+   await connect();
+  }else{
+   $('connection').textContent='Waiting for Kaggle to publish its tunnel address automatically...';
+  }
+ }catch(e){$('connection').textContent='Waiting for automatic Kaggle connection...';}
+}
+discoverBackend();
+window.addEventListener('focus',discoverBackend);
 async function connect(){
  backend=cleanBase($('backend').value);
  if(!/^https:\/\//i.test(backend)){ $('connection').textContent='Enter the full HTTPS Cloudflare URL including the secret path.';return false}
