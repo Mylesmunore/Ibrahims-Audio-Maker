@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090909"><meta name="description" content="Ibrahim's Audio Maker — cinematic AI sound for your video. Made on Earth by Ibi.">
+<title>Ibrahim's Audio Maker</title><link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<style>
+:root{--bg:#080808;--panel:#11110f;--panel2:#171613;--gold:#d7b56d;--gold2:#f2d99c;--muted:#9c978b;--line:#302a1d;--white:#f7f4ec}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#302516 0,transparent 45%),var(--bg);color:var(--white);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+header{height:78px;border-bottom:1px solid #29251d;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,5vw,72px);background:#090909d9;backdrop-filter:blur(16px);position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:13px}.brandmark{width:43px;height:43px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#f5e5bd,#b98d3e);box-shadow:0 0 25px #d7b56d22;color:#15110a;font-weight:900;font-size:20px;border:1px solid #f5dfaa}.brandname{font-weight:750;letter-spacing:.02em}.tagline{font-size:11px;color:var(--gold);letter-spacing:.14em;text-transform:uppercase}.status{border:1px solid var(--line);border-radius:30px;padding:8px 13px;color:#c7b78f;font-size:12px}
+main{width:min(1120px,calc(100% - 36px));margin:68px auto 80px}.hero{text-align:center;margin-bottom:42px}.eyebrow{color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:700}.hero h1{font-size:clamp(34px,6vw,58px);line-height:1.05;letter-spacing:-.045em;margin:15px 0 14px}.hero h1 span{color:var(--gold2)}.hero p{color:var(--muted);max-width:590px;margin:0 auto;font-size:15px}
+.workspace{display:grid;grid-template-columns:1.2fr .8fr;gap:20px}.panel{background:linear-gradient(145deg,#151411,#0f0f0e);border:1px solid var(--line);border-radius:18px;padding:25px;box-shadow:0 18px 60px #0006}.panel h2{font-size:17px;margin:0 0 5px}.sub{font-size:12px;color:var(--muted);margin:0 0 22px}.drop{border:1px dashed #74613a;border-radius:14px;background:#d7b56d08;min-height:190px;display:flex;align-items:center;justify-content:center;text-align:center;padding:22px;cursor:pointer;transition:.2s}.drop:hover,.drop.drag{border-color:var(--gold2);background:#d7b56d12}.uploadicon{width:48px;height:48px;border-radius:14px;background:#d7b56d18;color:var(--gold2);display:grid;place-items:center;margin:0 auto 12px;font-size:23px}.drop strong{display:block;font-size:14px}.drop small{display:block;color:var(--muted);margin-top:6px}.filemeta{color:var(--gold2);font-size:12px;margin-top:10px;overflow-wrap:anywhere}
+label{display:block;font-size:12px;color:#d6cdbb;margin:17px 0 7px}textarea,input,select{width:100%;background:#090909;border:1px solid #393226;border-radius:10px;color:var(--white);padding:12px 13px;font:inherit;outline:none}textarea{min-height:98px;resize:vertical}textarea:focus,input:focus,select:focus{border-color:var(--gold)}.two{display:grid;grid-template-columns:1fr 1fr;gap:13px}.hint{font-size:11px;color:#817b6e;margin-top:6px}.btn{width:100%;border:0;border-radius:11px;padding:14px 18px;background:linear-gradient(100deg,#b88a3d,#f0d99e);color:#17120a;font-weight:800;letter-spacing:.02em;cursor:pointer;margin-top:22px;transition:.2s}.btn:hover{filter:brightness(1.08);transform:translateY(-1px)}.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.option{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid #29251e;gap:12px}.option:last-of-type{border:0}.option b{font-size:13px;font-weight:600}.option small{display:block;color:var(--muted);font-size:11px}.option select{width:145px;padding:9px;font-size:12px}.range{width:145px;accent-color:var(--gold)}.notice{margin-top:20px;border:1px solid #574628;background:#d7b56d0c;border-radius:12px;padding:13px;color:#c8b78f;font-size:12px}.notice strong{color:var(--gold2)}
+footer{border-top:1px solid #24211b;text-align:center;padding:25px;color:#777164;font-size:11px;letter-spacing:.06em}.gold{color:var(--gold2)}
+@media(max-width:780px){.workspace{grid-template-columns:1fr}main{margin-top:44px}.status{display:none}header{height:68px}.panel{padding:20px}}
+</style></head>
+<body>
+<header><div class="brand"><div class="brandmark" aria-label="Ibrahim's Audio Maker logo">I<span style="font-size:11px;vertical-align:top">♪</span></div><div><div class="brandname">IBRAHIM'S AUDIO MAKER</div><div class="tagline">Made on Earth by Ibi</div></div></div><div class="status">✦ &nbsp; STUDIO EDITION</div></header>
+<main>
+<section class="hero"><div class="eyebrow">AI-powered video sound studio</div><h1>Give your video a <span>soundtrack.</span></h1><p>Turn visual moments into immersive sound. Upload a video, describe the atmosphere, and shape the sound you want to hear.</p></section>
+<section class="workspace">
+<div class="panel"><h2>1. Create your sound</h2><p class="sub">Choose a video and describe the audio scene.</p>
+<div class="drop" id="drop"><div><div class="uploadicon">↑</div><strong>Drop your video here or browse files</strong><small>MP4, MOV, MKV · Select a video from your device</small><div class="filemeta" id="filename">No video selected</div></div></div><input id="video" type="file" accept="video/*" hidden>
+<label for="prompt">Audio description</label><textarea id="prompt" placeholder="Example: Deep cinematic wind, distant thunder, footsteps on gravel, dramatic low orchestral atmosphere..."></textarea>
+<label for="negative">Avoid these sounds <span style="color:#777">· optional</span></label><input id="negative" placeholder="Example: music, speech, distortion, crowd noise">
+<button class="btn" id="generate">GENERATE AUDIO</button><div class="hint" id="feedback" aria-live="polite">Your video stays on this device until a connected processing service receives it.</div>
+</div>
+<div class="panel"><h2>2. Fine-tune the output</h2><p class="sub">Choose your preferred generation settings.</p>
+<div class="option"><div><b>AI model</b><small>Balance quality and speed</small></div><select id="model"><option value="large_44k_v2">Large · 44.1 kHz</option><option value="medium_44k">Medium · 44.1 kHz</option></select></div>
+<div class="option"><div><b>Inference steps</b><small>More steps can refine detail</small></div><select id="steps"><option>25</option><option selected> გას</option><option>50</option><option>64</option><option>80</option></select></div>
+<div class="option"><div><b>Guidance scale</b><small>Prompt influence</small></div><select id="cfg"><option>3.0</option><option selected>4.5</option><option>5.0</option><option>6.0</option><option>7.0</option></select></div>
+<div class="option"><div><b>Output format</b><small>Video with generated audio</small></div><span class="gold" style="font-size:12px">MP4 + FLAC</span></div>
+<div class="notice"><strong>Studio connection</strong><br>This is the public-facing studio interface. GPU generation will become available when the private processing backend is connected. No generation request is sent until that service is configured.</div>
+</div></section>
+</main><footer>IBRAHIM'S AUDIO MAKER <span class="gold">·</span> MADE ON EARTH BY IBI</footer>
+<script>
+const file=document.getElementById('video'),drop=document.getElementById('drop'),name=document.getElementById('filename'),feedback=document.getElementById('feedback'),button=document.getElementById('generate');
+function choose(f){if(!f)return;if(!f.type.startsWith('video/')){feedback.textContent='Please choose a valid video file.';return}file.files&&Object.defineProperty(file,'files',{value:file.files});name.textContent=f.name+' · '+(f.size/1024/1024).toFixed(1)+' MB';feedback.textContent='Video selected. Backend connection is not configured yet.'}
+drop.addEventListener('click',()=>file.click());file.addEventListener('change',()=>choose(file.files[0]));
+['dragenter','dragover'].forEach(e=>drop.addEventListener(e,x=>{x.preventDefault();drop.classList.add('drag')}));
+['dragleave','drop'].forEach(e=>drop.addEventListener(e,x=>{x.preventDefault();drop.classList.remove('drag')}));
+drop.addEventListener('drop',e=>choose(e.dataTransfer.files[0]));
+button.addEventListener('click',()=>{if(!file.files.length){feedback.textContent='Please select a video first.';return}if(!document.getElementById('prompt').value.trim()){feedback.textContent='Please describe the sound you want to generate.';return}feedback.textContent='The interface is ready, but the secure GPU backend has not been connected. No file was uploaded.';});
+</script></body></html>
