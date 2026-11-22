@@ -25,22 +25,72 @@ footer{border-top:1px solid #24211b;text-align:center;padding:25px;color:#777164
 <div class="drop" id="drop"><div><div class="uploadicon">↑</div><strong>Drop your video here or browse files</strong><small>MP4, MOV, MKV · Select a video from your device</small><div class="filemeta" id="filename">No video selected</div></div></div><input id="video" type="file" accept="video/*" hidden>
 <label for="prompt">Audio description</label><textarea id="prompt" placeholder="Example: Deep cinematic wind, distant thunder, footsteps on gravel, dramatic low orchestral atmosphere..."></textarea>
 <label for="negative">Avoid these sounds <span style="color:#777">· optional</span></label><input id="negative" placeholder="Example: music, speech, distortion, crowd noise">
-<button class="btn" id="generate">GENERATE AUDIO</button><div class="hint" id="feedback" aria-live="polite">Your video stays on this device until a connected processing service receives it.</div>
+<button class="btn" id="generate">GENERATE AUDIO</button><div class="hint" id="feedback" aria-live="polite">Connect your private Kaggle session before generating.</div><section id="monitor" class="notice" style="display:none"><strong id="stage">Preparing...</strong><div style="height:7px;background:#28231a;border-radius:8px;margin:12px 0;overflow:hidden"><div id="bar" style="height:100%;width:0;background:linear-gradient(90deg,#b88a3d,#f0d99e)"></div></div><div id="progress">0% · Waiting</div><div id="downloads" style="display:none;margin-top:12px;display:flex;gap:12px;flex-wrap:wrap"><a id="mp4" class="gold">Download MP4</a><a id="flac" class="gold">Download FLAC</a></div></section>
 </div>
 <div class="panel"><h2>2. Fine-tune the output</h2><p class="sub">Choose your preferred generation settings.</p>
 <div class="option"><div><b>AI model</b><small>Balance quality and speed</small></div><select id="model"><option value="large_44k_v2">Large · 44.1 kHz</option><option value="medium_44k">Medium · 44.1 kHz</option></select></div>
 <div class="option"><div><b>Inference steps</b><small>More steps can refine detail</small></div><select id="steps"><option>25</option><option selected>40</option><option>50</option><option>64</option><option>80</option></select></div>
 <div class="option"><div><b>Guidance scale</b><small>Prompt influence</small></div><select id="cfg"><option>3.0</option><option selected>4.5</option><option>5.0</option><option>6.0</option><option>7.0</option></select></div>
 <div class="option"><div><b>Output format</b><small>Video with generated audio</small></div><span class="gold" style="font-size:12px">MP4 + FLAC</span></div>
-<div class="notice"><strong>Studio connection</strong><br>This is the public-facing studio interface. GPU generation will become available when the private processing backend is connected. No generation request is sent until that service is configured.</div>
+<div class="notice"><strong>Private Kaggle connection</strong><br>Paste the current Cloudflare backend URL including its secret path. This address changes when you restart the Kaggle session.</div>
+<label for="backend">Kaggle backend URL</label><input id="backend" type="url" placeholder="https://xxxx.trycloudflare.com/your-secret-path/">
+<button class="btn" id="connect" type="button" style="margin-top:10px">CONNECT TO GPU</button><div class="hint" id="connection">Not connected</div>
 </div></section>
 </main><footer>IBRAHIM'S AUDIO MAKER <span class="gold">·</span> MADE ON EARTH BY IBI</footer>
 <script>
-const file=document.getElementById('video'),drop=document.getElementById('drop'),name=document.getElementById('filename'),feedback=document.getElementById('feedback'),button=document.getElementById('generate');
-function choose(f){if(!f)return;if(!f.type.startsWith('video/')){feedback.textContent='Please choose a valid video file.';return}file.files&&Object.defineProperty(file,'files',{value:file.files});name.textContent=f.name+' · '+(f.size/1024/1024).toFixed(1)+' MB';feedback.textContent='Video selected. Backend connection is not configured yet.'}
+const $=id=>document.getElementById(id);
+const file=$('video'),drop=$('drop'),name=$('filename'),feedback=$('feedback'),button=$('generate');
+let jobId=null,pollTimer=null,backend='';
+function cleanBase(v){return v.trim().replace(/\\/+$/,'')}
+function choose(f){if(!f)return;if(!f.type.startsWith('video/')){feedback.textContent='Please choose a valid video file.';return}
+const dt=new DataTransfer();dt.items.add(f);file.files=dt.files;
+name.textContent=f.name+' · '+(f.size/1024/1024).toFixed(1)+' MB';feedback.textContent='Video selected.'}
 drop.addEventListener('click',()=>file.click());file.addEventListener('change',()=>choose(file.files[0]));
 ['dragenter','dragover'].forEach(e=>drop.addEventListener(e,x=>{x.preventDefault();drop.classList.add('drag')}));
 ['dragleave','drop'].forEach(e=>drop.addEventListener(e,x=>{x.preventDefault();drop.classList.remove('drag')}));
 drop.addEventListener('drop',e=>choose(e.dataTransfer.files[0]));
-button.addEventListener('click',()=>{if(!file.files.length){feedback.textContent='Please select a video first.';return}if(!document.getElementById('prompt').value.trim()){feedback.textContent='Please describe the sound you want to generate.';return}feedback.textContent='The interface is ready, but the secure GPU backend has not been connected. No file was uploaded.';});
+$('backend').value=localStorage.getItem('ibi_backend_url')||'';
+async function connect(){
+ backend=cleanBase($('backend').value);
+ if(!/^https:\/\//i.test(backend)){ $('connection').textContent='Enter the full HTTPS Cloudflare URL including the secret path.';return false}
+ $('connection').textContent='Checking Kaggle GPU service...';
+ try{
+  const r=await fetch(backend+'/api/health'); if(!r.ok)throw Error('HTTP '+r.status);
+  const d=await r.json(); if(!d.ok)throw Error('Backend not ready');
+  localStorage.setItem('ibi_backend_url',backend);
+  $('connection').textContent='Connected · '+d.gpu_count+' GPU worker(s) ready';
+  return true;
+ }catch(e){$('connection').textContent='Connection failed: '+e.message+' · Check that the Kaggle cell is still running.';return false}
+}
+$('connect').addEventListener('click',connect);
+async function poll(){
+ try{
+  const r=await fetch(backend+'/status/'+jobId);const d=await r.json();if(!r.ok)throw Error(d.error||'Status check failed');
+  $('stage').textContent=d.stage||'Processing';$('bar').style.width=(d.progress||0)+'%';$('progress').textContent=(d.progress||0)+'% · '+(d.message||'');
+  if(d.status==='completed'){
+   clearInterval(pollTimer);$('downloads').style.display='flex';
+   $('mp4').href=backend+'/download/'+jobId+'/mp4';$('flac').href=backend+'/download/'+jobId+'/flac';
+   $('mp4').setAttribute('download','mmaudio_result.mp4');$('flac').setAttribute('download','generated_audio.flac');
+   button.disabled=false;button.textContent='GENERATE ANOTHER VIDEO';feedback.textContent='Generation complete.';
+  }else if(d.status==='error'){
+   clearInterval(pollTimer);feedback.textContent='Generation failed: '+(d.message||'Unknown error');button.disabled=false;button.textContent='TRY AGAIN';
+  }
+ }catch(e){$('progress').textContent='Connection interrupted: '+e.message+' · Retrying...'}
+}
+button.addEventListener('click',async()=>{
+ if(!file.files.length){feedback.textContent='Please select a video first.';return}
+ if(!$('prompt').value.trim()){feedback.textContent='Please describe the sound you want.';return}
+ if(!backend){if(!await connect())return}
+ button.disabled=true;button.textContent='UPLOADING VIDEO...';feedback.textContent='Uploading to your private Kaggle session...';
+ $('monitor').style.display='block';$('downloads').style.display='none';$('bar').style.width='0%';
+ const data=new FormData();data.append('video',file.files[0]);data.append('prompt',$('prompt').value);
+ data.append('negative_prompt',$('negative').value);data.append('variant',$('model').value);
+ data.append('steps',$('steps').value);data.append('cfg',$('cfg').value);data.append('seed','42');
+ try{
+  const r=await fetch(backend+'/upload',{method:'POST',body:data});const d=await r.json();
+  if(!r.ok)throw Error(d.error||'Upload failed');jobId=d.job_id;feedback.textContent='Video received. GPU generation started.';
+  $('stage').textContent='Queued';$('progress').textContent='1% · Waiting for GPU slot';
+  clearInterval(pollTimer);pollTimer=setInterval(poll,2000);poll();
+ }catch(e){feedback.textContent='Upload failed: '+e.message;button.disabled=false;button.textContent='GENERATE AUDIO'}
+});
 </script></body></html>
