@@ -87,7 +87,12 @@ async function poll(){
    clearInterval(pollTimer);$('downloads').style.display='flex';
    $('mp4').href=backend+'/download/'+jobId+'/mp4';$('flac').href=backend+'/download/'+jobId+'/flac';
    $('mp4').setAttribute('download','mmaudio_result.mp4');$('flac').setAttribute('download','generated_audio.flac');
-   button.disabled=false;button.textContent='GENERATE ANOTHER VIDEO';feedback.textContent='Generation complete.';
+   feedback.textContent='Generation complete. Your MP4 download is starting automatically.';
+   // Automatically start the finished MP4 download; FLAC remains available as a separate link.
+   const autoLink=document.createElement('a');
+   autoLink.href=$('mp4').href;autoLink.download='mmaudio_result.mp4';
+   document.body.appendChild(autoLink);autoLink.click();autoLink.remove();
+   button.disabled=false;button.textContent='GENERATE ANOTHER VIDEO';
   }else if(d.status==='error'){
    clearInterval(pollTimer);feedback.textContent='Generation failed: '+(d.message||'Unknown error');button.disabled=false;button.textContent='TRY AGAIN';
   }
