@@ -41,7 +41,7 @@ footer{border-top:1px solid #24211b;text-align:center;padding:25px;color:#777164
 const $=id=>document.getElementById(id);
 const file=$('video'),drop=$('drop'),name=$('filename'),feedback=$('feedback'),button=$('generate');
 let jobId=null,pollTimer=null,backend='';
-function cleanBase(v){return v.trim().replace(/\\/+$/,'')}
+function cleanBase(v){return v.trim().replace(/\/+$/,'')}
 function choose(f){if(!f)return;if(!f.type.startsWith('video/')){feedback.textContent='Please choose a valid video file.';return}
 const dt=new DataTransfer();dt.items.add(f);file.files=dt.files;
 name.textContent=f.name+' · '+(f.size/1024/1024).toFixed(1)+' MB';feedback.textContent='Video selected.'}
